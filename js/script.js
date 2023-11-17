@@ -48,8 +48,20 @@ function taskCompleted(id) {
 }
 
 function deleteTaskFromCompleted(id) {
-  const toDoItem = findToDo(id);
-  if (toDoItem == null) return;
+  const toDoItem = findToDoIndex(id);
+  if (toDoItem == -1) return;
+
+  todo.splice(toDoItem, 1);
+  document.dispatchEvent(new Event(RENDER_EVENT));
+}
+
+function findToDoIndex(id) {
+  for (const index in todo) {
+    if (todo[index].id === id) {
+      return index;
+    }
+  }
+  return -1;
 }
 
 function undoTaskFromCompleted(id) {
