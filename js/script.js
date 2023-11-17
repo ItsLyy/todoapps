@@ -38,6 +38,36 @@ function generateToDoObject(id, task, time, isCompleted) {
     isCompleted,
   };
 }
+function taskCompleted(id) {
+  const toDoItem = findToDo(id);
+
+  if (toDoItem == null) return;
+
+  toDoItem.isCompleted = true;
+  document.dispatchEvent(new Event(RENDER_EVENT));
+}
+
+function deleteTaskFromCompleted(id) {
+  const toDoItem = findToDo(id);
+  if (toDoItem == null) return;
+}
+
+function undoTaskFromCompleted(id) {
+  const toDoItem = findToDo(id);
+  if (toDoItem == null) return;
+
+  toDoItem.isCompleted = false;
+  document.dispatchEvent(new Event(RENDER_EVENT));
+}
+
+function findToDo(id) {
+  for (let y of todo) {
+    if (y.id === id) {
+      return y;
+    }
+  }
+  return null;
+}
 
 function makeToDo(toDoObject) {
   const titleText = document.createElement("h2");
@@ -66,6 +96,8 @@ function makeToDo(toDoObject) {
     undoButton.addEventListener("click", function () {
       undoTaskFromCompleted(toDoObject.id);
     });
+
+    container.append(undoButton, trashButton);
   } else {
     const checkButton = document.createElement("button");
     checkButton.classList.add("check-button");
@@ -77,31 +109,17 @@ function makeToDo(toDoObject) {
   return container;
 }
 
-function taskCompleted(id) {
-  const toDoItem = findToDo(id);
-
-  if (toDoItem == null) return;
-
-  toDoItem.isCompleted = true;
-  document.dispatchEvent(new Event(RENDER_EVENT));
-}
-
-function findToDo(id) {
-  for (const todoItems of todo) {
-    if (todoItems === id) {
-      return todoItems;
-    }
-  }
-  return null;
-}
-
 document.addEventListener(RENDER_EVENT, function () {
   const incompletedContainer = document.getElementById("todos");
+  const completedContainer = document.getElementById("todos-completed");
   incompletedContainer.innerHTML = "";
+  completedContainer.innerHTML = "";
 
   for (const todoItem of todo) {
     if (!todoItem.isCompleted) {
-      incompletedContainer.appendChild(makeToDo(todoItem));
+      incompletedContainer.append(makeToDo(todoItem));
+    } else {
+      completedContainer.append(makeToDo(todoItem));
     }
   }
 });
