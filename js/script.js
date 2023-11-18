@@ -1,6 +1,7 @@
 const todo = [];
 const RENDER_EVENT = "render-todo";
-const sessionKey = "KEYSAVE";
+const SAVE_KEY = "KEYSAVE";
+const SAVE_EVENT = 'render-save'
 
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("form");
@@ -8,7 +9,38 @@ document.addEventListener("DOMContentLoaded", function () {
     e.preventDefault();
     addToDo();
   });
+
+  if(storageExist()){
+    loadData();
+  }
 });
+
+function storageExist() {
+  if (typeof Storage === undefined) {
+    alert("HAHAHAHAH YOU BROKE AS FUCK");
+    return false;
+  }
+  return true;
+}
+
+function saveData() {
+  if (storageExist()) {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(todo));
+  }
+}
+
+function loadData(){
+  const valueStorage = localStorage.getItem(SAVE_KEY);
+  const todoValue = JSON.parse(valueStorage);
+
+  if(todoValue !== null){
+    for(const todosValue of todoValue){
+      todo.push(todosValue);
+    }
+  }
+
+  document.dispatchEvent(new Event(RENDER_EVENT));
+}
 
 function addToDo() {
   const titleToDo = document.getElementById("title");
@@ -23,9 +55,9 @@ function addToDo() {
   );
 
   todo.push(toDoObject);
-  sessionStorage.setItem(sessionKey, todo);
 
   document.dispatchEvent(new Event(RENDER_EVENT));
+  saveData();
 }
 
 function generateId() {
@@ -47,14 +79,16 @@ function taskCompleted(id) {
 
   toDoItem.isCompleted = true;
   document.dispatchEvent(new Event(RENDER_EVENT));
+  saveData();
 }
 
 function deleteTaskFromCompleted(id) {
   const toDoItem = findToDoIndex(id);
   if (toDoItem == -1) return;
-
+  
   todo.splice(toDoItem, 1);
   document.dispatchEvent(new Event(RENDER_EVENT));
+  saveData();
 }
 
 function findToDoIndex(id) {
@@ -69,9 +103,10 @@ function findToDoIndex(id) {
 function undoTaskFromCompleted(id) {
   const toDoItem = findToDo(id);
   if (toDoItem == null) return;
-
+  
   toDoItem.isCompleted = false;
   document.dispatchEvent(new Event(RENDER_EVENT));
+  saveData();
 }
 
 function findToDo(id) {
@@ -128,14 +163,15 @@ document.addEventListener(RENDER_EVENT, function () {
   const completedContainer = document.getElementById("todos-completed");
   incompletedContainer.innerHTML = "";
   completedContainer.innerHTML = "";
-  
+
   for (const todoItem of todo) {
     const todoValue = makeToDo(todoItem);
-    sessionStorage.setItem(sessionKey, todoValue);
     if (!todoItem.isCompleted) {
-      incompletedContainer.append(sessionStorage.getItem(sessionKey));
+      incompletedContainer.append(todoValue);
     } else {
-      completedContainer.append(sessionStorage.getItem(sessionKey));
+      completedContainer.append(todoValue);
     }
   }
 });
+
+
