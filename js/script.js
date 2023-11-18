@@ -1,5 +1,6 @@
 const todo = [];
 const RENDER_EVENT = "render-todo";
+const sessionKey = "KEYSAVE";
 
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("form");
@@ -22,6 +23,7 @@ function addToDo() {
   );
 
   todo.push(toDoObject);
+  sessionStorage.setItem(sessionKey, todo);
 
   document.dispatchEvent(new Event(RENDER_EVENT));
 }
@@ -126,12 +128,14 @@ document.addEventListener(RENDER_EVENT, function () {
   const completedContainer = document.getElementById("todos-completed");
   incompletedContainer.innerHTML = "";
   completedContainer.innerHTML = "";
-
+  
   for (const todoItem of todo) {
+    const todoValue = makeToDo(todoItem);
+    sessionStorage.setItem(sessionKey, todoValue);
     if (!todoItem.isCompleted) {
-      incompletedContainer.append(makeToDo(todoItem));
+      incompletedContainer.append(sessionStorage.getItem(sessionKey));
     } else {
-      completedContainer.append(makeToDo(todoItem));
+      completedContainer.append(sessionStorage.getItem(sessionKey));
     }
   }
 });
